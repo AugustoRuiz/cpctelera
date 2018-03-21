@@ -158,6 +158,7 @@ int extractPalette(ezOptionParser &options, ConversionOptions &convOptions) {
 		result = palette.ParseFile(paletteFile);
 	}
 
+/*
 	if (options.isSet("-ta")) {
 		if (convOptions.NoMaskData) {
 			result = -1;
@@ -168,7 +169,8 @@ int extractPalette(ezOptionParser &options, ConversionOptions &convOptions) {
 			palette.Current.push_back(Color(0, 0, 0, 0));
 		}
 	}
-	
+*/
+
 	if (options.isSet("-t")) {
 		int maxValue = palette.Current.size();
 		int value;
@@ -269,7 +271,9 @@ int extractConversionOptions(ezOptionParser &options, ConversionOptions &convOpt
 	convOptions.InterlaceMasks = options.isSet("-im");
 
 	if (convOptions.Palette.TransparentIndex == -1 && !convOptions.NoMaskData) {
-		cout << "Warning: No transparent color specified, but mask generation specified. No mask will be generated." << endl;
+		cout << "Warning: No transparent color specified, but mask generation specified. No mask will be generated unless image with alpha is used." << endl;
+		palette.TransparentIndex = palette.Current.size();
+		palette.Current.push_back(Color(0, 0, 0, 0));
 	}
 
 	if(!result) {
