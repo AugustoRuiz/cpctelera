@@ -272,8 +272,8 @@ int extractConversionOptions(ezOptionParser &options, ConversionOptions &convOpt
 
 	if (convOptions.Palette.TransparentIndex == -1) {
 		cout << "Warning: No transparent color specified. If images with transparent pixels are used, transparent pixels will be considered as such." << endl;
-		palette.TransparentIndex = palette.Current.size();
-		palette.Current.push_back(Color(0, 0, 0, 0));
+		convOptions.Palette.TransparentIndex = convOptions.Palette.Current.size();
+		convOptions.Palette.Current.push_back(Color(0, 0, 0, 0));
 	}
 
 	if(!result) {
