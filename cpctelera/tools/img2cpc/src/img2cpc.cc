@@ -270,8 +270,8 @@ int extractConversionOptions(ezOptionParser &options, ConversionOptions &convOpt
 
 	convOptions.InterlaceMasks = options.isSet("-im");
 
-	if (convOptions.Palette.TransparentIndex == -1 && !convOptions.NoMaskData) {
-		cout << "Warning: No transparent color specified, but mask generation specified. No mask will be generated unless image with alpha is used." << endl;
+	if (convOptions.Palette.TransparentIndex == -1) {
+		cout << "Warning: No transparent color specified. If images with transparent pixels are used, transparent pixels will be considered as such." << endl;
 		palette.TransparentIndex = palette.Current.size();
 		palette.Current.push_back(Color(0, 0, 0, 0));
 	}
