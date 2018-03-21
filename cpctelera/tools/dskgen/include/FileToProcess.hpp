@@ -22,6 +22,7 @@ public:
 
     u16 LoadAddress;
     u16 ExecutionAddress;
+    bool Hidden;
 
     void SetSourcePath(string path) {
         string tmpStr(path);
@@ -57,6 +58,13 @@ public:
         memcpy(this->AmsDosName, fileName.c_str(), maxNameSize);
         memcpy(this->AmsDosName + maxNameSize, extension.c_str(), maxExtSize);        
     }
+
+	string GetLabel() {
+		string result(this->SourcePath);
+		transform(result.begin(), result.end(), result.begin(), ::toupper);
+		replace(result.begin(), result.end(), '.', '_');
+		return result;
+	}
 };
 
 #endif

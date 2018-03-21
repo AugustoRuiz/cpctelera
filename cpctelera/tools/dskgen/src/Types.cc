@@ -10,9 +10,15 @@ CatalogType ParseCatalogType(const string &catStr) {
         result = CAT_RAW;    
     } else if(tmpStr == "cpm") {
         result = CAT_CPM;
-    } else {
+	} else if (tmpStr == "sf2") {
+		result = CAT_SF2;
+	} else if (tmpStr == "pasmo") {
+		result = CAT_PASMO;
+	} else if (tmpStr == "asz80") {
+		result = CAT_ASZ80;
+	} else {
         stringstream ss;
-        ss << "Catalog type not recognized: " << catStr << ".\nValid values are: CPM, RAW or NONE.\n";
+        ss << "Catalog type not recognized: " << catStr << ".\nValid values are: CPM, RAW, SF2, PASMO, ASZ80 or NONE.\n";
         throw ss.str();
     }
     return result;
@@ -29,7 +35,13 @@ DiskType ParseDiskType(const string &diskStr) {
         result = DSK_DATA;
     } else if(tmpStr == "ibm") {
         result = DSK_IBM;
-    } else if(tmpStr == "custom") {
+    } else if(tmpStr == "pcw720") {
+        result = DSK_PCW720;
+    } else if(tmpStr == "pcw1440") {
+        result = DSK_PCW1440;
+    } else if (tmpStr == "romdos_d1") {
+		result = DSK_ROMDOS_D1;
+	} else if(tmpStr == "custom") {
         result = DSK_CUSTOM;
     } else {
         stringstream ss;
@@ -74,12 +86,15 @@ AmsdosFileType ParseAmsdosFileType(const string &fileTypeStr) {
     else if (tmpStr == "asc") {
         result = AMSDOS_FILE_ASCII;
     }
+	else if (tmpStr == "raw") {
+		result = AMSDOS_FILE_RAW_CAT;
+	}
     else if (tmpStr == "") {
         result = AMSDOS_FILE_NONE;
     }
     else {
         stringstream ss;
-        ss << "File type not recognized: " << fileTypeStr << ".\nValid values are: BAS, BIN, SCR, ASC, or empty string.\n";
+        ss << "File type not recognized: " << fileTypeStr << ".\nValid values are: BAS, BIN, SCR, ASC, RAW or empty string.\n";
         throw ss.str();
     }
     return result;

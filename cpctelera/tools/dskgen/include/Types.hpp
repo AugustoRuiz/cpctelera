@@ -9,21 +9,47 @@
 using namespace std;
 
 #define        DSK_RECORD_SIZE            128
-
 #define        AMSDOS_EMPTY_BYTE        0xE5
 
-typedef enum { HDR_NONE=0, HDR_AMSDOS=1 } HeaderType;
+typedef enum { 
+	HDR_NONE=0, 
+	HDR_AMSDOS=1 
+} HeaderType;
 
 // RAW catalog: it stores in the first sector the following info for each file:
 //       Side (1byte), 
 //    Initial Track (1 byte) - track where the file starts, 
 //    Initial Sector Offset (1 byte) - counting from the first sector based on the disk type, 
 //    Length in bytes (3 bytes)
-typedef enum { CAT_NONE=0, CAT_RAW=1, CAT_CPM=2 } CatalogType;
+typedef enum { 
+	CAT_NONE=0, 
+	CAT_RAW=1, 
+	CAT_CPM=2, 
+	CAT_SF2=3,
+	CAT_PASMO=4,
+	CAT_ASZ80=5,
+	CAT_C=6
+} CatalogType;
 
-typedef enum { DSK_SYSTEM=0, DSK_DATA=1, DSK_IBM=2, DSK_CUSTOM=3 } DiskType;
+typedef enum { 
+	DSK_SYSTEM = 0, 
+	DSK_DATA = 1, 
+	DSK_IBM = 2, 
+	DSK_PCW720 = 3, 
+	DSK_PCW1440 = 4, 
+	DSK_ROMDOS_D1 = 5,
+	DSK_CUSTOM = 6
+} DiskType;
 
-typedef enum { AMSDOS_FILE_NONE = 0, AMSDOS_FILE_INTERNAL_BASIC = 1, AMSDOS_FILE_BINARY = 2, AMSDOS_FILE_BINARY_PROTECTED = 3, AMSDOS_FILE_SCREEN_IMAGE = 4, AMSDOS_FILE_ASCII = 8 } AmsdosFileType;
+typedef enum { 
+	AMSDOS_FILE_NONE = 0, 
+	AMSDOS_FILE_INTERNAL_BASIC = 1, 
+	AMSDOS_FILE_BINARY = 2, 
+	AMSDOS_FILE_BINARY_PROTECTED = 3, 
+	AMSDOS_FILE_SCREEN_IMAGE = 4, 
+	AMSDOS_FILE_ASCII = 8, 
+	AMSDOS_FILE_RAW_CAT = 0xFF 
+} AmsdosFileType;
 
 CatalogType ParseCatalogType(const string &catStr);
 DiskType ParseDiskType(const string &diskStr);
@@ -48,23 +74,23 @@ struct u24 {
 };
 
 struct XDPB {
-    u16                recordsPerTrack;    // (spt) Number of 128-byte records on each track;
-    u8                 blockShift;            // (bsh) log2 BLS - 7
+    u16                recordsPerTrack;      // (spt) Number of 128-byte records on each track;
+    u8                 blockShift;           // (bsh) log2 BLS - 7
     u8                 blockMask;            // (blm) BLS / 128 - 1
-    u8                 extentMask;            // (exm) Extent mask. DSM < 256 ? BLS/1024 - 1 : BLS/2048 - 1 
+    u8                 extentMask;           // (exm) Extent mask. DSM < 256 ? BLS/1024 - 1 : BLS/2048 - 1 
     u16                numBlocks;            // (dsm) Total size of disk in blocks excluding reserved tracks.
-    u16                dirEntries;            // (drm) Total number of directory entries - 1
-    u8                 allocationLo;        // (al01) Bit significant representation of number of directory blocks (#0080 => 1, #00C0 => 2)
-    u8                 allocationHi;        // (al01) Bit significant representation of number of directory blocks (#0080 => 1, #00C0 => 2)
-    u16                checksumLength;        // (cks) Length of checksum vector. Normally drm/4 + 1, but if checksumming not required, 0
-    u16                reservedTracks;        // (off) Number of reserved tracks. This is also the track the directory starts.
+    u16                dirEntries;           // (drm) Total number of directory entries - 1
+    u8                 allocationLo;         // (al01) Bit significant representation of number of directory blocks (#0080 => 1, #00C0 => 2)
+    u8                 allocationHi;         // (al01) Bit significant representation of number of directory blocks (#0080 => 1, #00C0 => 2)
+    u16                checksumLength;       // (cks) Length of checksum vector. Normally drm/4 + 1, but if checksumming not required, 0
+    u16                reservedTracks;       // (off) Number of reserved tracks. This is also the track the directory starts.
     u8                 firstSectorNumber;    // First sector number.
-    u8                 sectorsPerTrack;    // Sectors per track.
+    u8                 sectorsPerTrack;      // Sectors per track.
     u8                 gapRW;                // Gap length (read/write)
-    u8                 gapF;                // Gap length (format)
-    u8                 fillerByte;            // Filler Byte (for formatting)
-    u8                 logSectSize;         // Log2(sectorSize)-7
+    u8                 gapF;                 // Gap length (format)
+    u8                 fillerByte;           // Filler Byte (for formatting)
     u8                 sectSizeInRecords;    // Sector size in records
+	u8				   sidesInterleaved;     // If 1, data is written on each side before advancing track. If 0, data is written to all tracks in one side, then the other.
 };
 
 /* DSK Format: http://cpctech.cpc-live.com/docs/dsk.html */
@@ -107,7 +133,8 @@ struct DskTrack {
 };
 
 struct CatalogEntryAmsdos {
-    u8        UserNumber;     // Valid values are 0-15
+	u8        Side;           // Catalog side. Not to be written in disk!
+	u8        UserNumber;     // Valid values are 0-15
     u8        Name[8];
     u8        Extension[3];
     // File size: 
